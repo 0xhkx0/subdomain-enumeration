@@ -1,0 +1,39 @@
+name: Nightly Run
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    # Runs every night at 2:00 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Display workflow info
+        run: |
+          echo "🚀 Workflow triggered!"
+          echo "Repository: ${{ github.repository }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit SHA: ${{ github.sha }}"
+          echo "Commit message: ${{ github.event.head_commit.message }}"
+          echo "Triggered by: ${{ github.event_name }}"
+          echo "Timestamp: $(date)"
+      
+      - name: Run Python script
+        run: |
+          python3 --version
+          echo "Checking main.py..."
+          if [ -f main.py ]; then
+            echo "✅ main.py exists"
+            python3 main.py || echo "Script execution completed"
+          else
+            echo "⚠️  main.py not found"
+          fi
