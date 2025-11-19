@@ -18,7 +18,7 @@ class SubdomainScanner:
                 return [line.strip() for line in f if line.strip()]
         except FileNotFoundError:
             # Default wordlist if file not found
-            return ['www', 'mail', 'ftp', 'admin', 'api', 'blog', 'dev', 'test', 'staging']
+            return ['hacked']
     
     def check_subdomain(self, subdomain):
         """Check if subdomain exists"""
