@@ -1,8 +1,11 @@
-import requests
-import sys
-import threading
-from concurrent.futures import ThreadPoolExecutor
 import argparse
+import sys
+from concurrent.futures import ThreadPoolExecutor
+from typing import List
+
+import requests
+
+import automation
 
 class SubdomainScanner:
     def __init__(self, domain, wordlist_file="subdomains.txt", threads=50):
@@ -47,18 +50,71 @@ class SubdomainScanner:
         for subdomain in self.found_subdomains:
             print(f"  {subdomain}")
 
-def main():
-    parser = argparse.ArgumentParser(description="Basic Subdomain Scanner")
-    parser.add_argument("domain", help="Target domain to scan")
-    parser.add_argument("-w", "--wordlist", default="subdomains.txt", 
-                       help="Wordlist file (default: subdomains.txt)")
-    parser.add_argument("-t", "--threads", type=int, default=50,
-                       help="Number of threads (default: 50)")
-    
-    args = parser.parse_args()
-    
+def add_scan_subparser(subparsers: argparse._SubParsersAction) -> None:
+    scan_parser = subparsers.add_parser("scan", help="Run subdomain enumeration")
+    scan_parser.add_argument("domain", help="Target domain to scan")
+    scan_parser.add_argument(
+        "-w",
+        "--wordlist",
+        default="subdomains.txt",
+        help="Wordlist file (default: subdomains.txt)",
+    )
+    scan_parser.add_argument(
+        "-t",
+        "--threads",
+        type=int,
+        default=50,
+        help="Number of threads (default: 50)",
+    )
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Subdomain enumeration and automation toolkit"
+    )
+    subparsers = parser.add_subparsers(dest="command")
+    add_scan_subparser(subparsers)
+    automation.add_subcommands(subparsers)
+    return parser
+
+
+def run_scan(args: argparse.Namespace) -> None:
     scanner = SubdomainScanner(args.domain, args.wordlist, args.threads)
     scanner.scan()
+
+
+def parse_legacy_args(argv: List[str]) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Basic Subdomain Scanner")
+    parser.add_argument("domain", help="Target domain to scan")
+    parser.add_argument(
+        "-w",
+        "--wordlist",
+        default="subdomains.txt",
+        help="Wordlist file (default: subdomains.txt)",
+    )
+    parser.add_argument(
+        "-t",
+        "--threads",
+        type=int,
+        default=50,
+        help="Number of threads (default: 50)",
+    )
+    return parser.parse_args(argv)
+
+
+def main() -> None:
+    parser = build_parser()
+    if len(sys.argv) > 1:
+        args = parser.parse_args()
+        if args.command == "scan":
+            run_scan(args)
+            return
+        if args.command:
+            automation.handle_command(args)
+            return
+
+    legacy_args = parse_legacy_args(sys.argv[1:])
+    run_scan(legacy_args)
 
 if __name__ == "__main__":
     main()
