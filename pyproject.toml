@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "subdomain-enumeration"
+version = "0.1.0"
+description = "Subdomain enumeration and security automation helpers"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Subdomain Enumeration Contributors" }]
+dependencies = ["requests"]
+
+[project.scripts]
+subdomain-enum = "main:main"
+
+[tool.setuptools]
+py-modules = ["main", "automation"]

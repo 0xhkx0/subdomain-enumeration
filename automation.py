@@ -407,10 +407,7 @@ def load_list_from_file(path: Optional[str]) -> List[str]:
         return []
 
 
-def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Security automation helpers")
-    subparsers = parser.add_subparsers(dest="command", required=True)
-
+def add_subcommands(subparsers: argparse._SubParsersAction) -> None:
     scribd_parser = subparsers.add_parser("scribd", help="Search Scribd for sensitive docs")
     scribd_parser.add_argument("query")
     scribd_parser.add_argument("--limit", type=int, default=20)
@@ -464,13 +461,15 @@ def build_parser() -> argparse.ArgumentParser:
     takeover_parser = subparsers.add_parser("takeover", help="Subdomain takeover fingerprints")
     takeover_parser.add_argument("urls", nargs="+")
 
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Security automation helpers")
+    subparsers = parser.add_subparsers(dest="command", required=True)
+    add_subcommands(subparsers)
     return parser
 
 
-def main() -> None:
-    parser = build_parser()
-    args = parser.parse_args()
-
+def handle_command(args: argparse.Namespace) -> None:
     if args.command == "scribd":
         results = search_scribd(args.query, args.limit)
         print("\n".join(results) if results else "No results found.")
@@ -567,6 +566,12 @@ def main() -> None:
             print("\n".join(findings))
         else:
             print("No takeover signatures detected.")
+
+
+def main() -> None:
+    parser = build_parser()
+    args = parser.parse_args()
+    handle_command(args)
 
 
 if __name__ == "__main__":
