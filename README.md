@@ -48,13 +48,13 @@ python main.py -h
 ### Usage
 
 ```bash
-subdomain-enum scan <domain> [--wordlist WORDLIST] [--threads N]
+subdomain-enum scan <domain> [--wordlist WORDLIST] [--threads N] [--no-passive]
 ```
 
 Or:
 
 ```bash
-python main.py scan <domain> [--wordlist WORDLIST] [--threads N]
+python main.py scan <domain> [--wordlist WORDLIST] [--threads N] [--no-passive]
 ```
 
 ### Arguments
@@ -62,11 +62,13 @@ python main.py scan <domain> [--wordlist WORDLIST] [--threads N]
 - `domain`: target domain to scan (e.g., `example.com`).
 - `--wordlist`, `-w`: path to a wordlist file (default: `subdomains.txt`).
 - `--threads`, `-t`: number of worker threads (default: `50`).
+- `--passive`: enable passive enumeration (default).
+- `--no-passive`: disable passive enumeration.
 
 ### Example
 
 ```bash
-subdomain-enum scan example.com -w subdomains.txt -t 100
+subdomain-enum scan example.com -w subdomains.txt -t 100 --no-passive
 ```
 
 ### Legacy Usage
@@ -79,8 +81,9 @@ python main.py example.com -w subdomains.txt -t 100
 
 ### Notes
 
-- The scanner performs `http://<subdomain>.<domain>` requests and reports `200 OK` responses.
-- If the wordlist file is missing, the scanner falls back to a default list containing `hacked`.
+- The scanner probes DNS plus `https://` and `http://` endpoints and treats any reachable response as a finding.
+- If the wordlist file is missing, the scanner falls back to a built-in list of common subdomains.
+- Passive enumeration uses multiple public sources (`crt.sh`, `dns.bufferover.run`, `api.hackertarget.com`) by default.
 - Results are printed to STDOUT and not written to a file.
 
 ## Automation Helpers
